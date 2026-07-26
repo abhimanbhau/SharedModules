@@ -3,6 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.android.library'
 
 android {
+
+    buildFeatures {
+
+        buildConfig true
+
+    }
+
+    namespace 'com.liskovsoft.sharedutils'
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
     testOptions.unitTests.includeAndroidResources = true
@@ -29,7 +37,7 @@ android {
         }
     }
 
-    lintOptions {
+    lint {
         abortOnError true
         lintConfig rootProject.file('lint.xml')
     }
