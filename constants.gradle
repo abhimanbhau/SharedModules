@@ -3,7 +3,11 @@ project.ext {
     // Leanback requires API 17+
     // j2v8 6.2.1 requires API 18+
     // Compose for TV (androidx.tv:tv-material/tv-foundation) requires API 21+
-    minSdkVersion = 21
+    // AetherTube raises the floor to 23 (Android 6.0): upstream SmartTube's very low floor forces
+    // several deps to stay on ancient versions purely for Android 4.x/5.x support. API 23+ covers
+    // effectively all Android TV hardware still in use (cheap boxes ship 7.1/9/11) at the cost of
+    // dropping Android TV 5.x and Fire OS 5 (Fire TV Stick 1st/2nd gen).
+    minSdkVersion = 23
     // Fix AppSettingsActivity crash: "Only fullscreen opaque activities can request orientation".
     // Error happen only on Android 8.0 (api 26) when you set activity orientation in manifest.
     // Possible fix is to set targetSdkVersion to 26.
