@@ -12,7 +12,6 @@ android {
 
     namespace 'com.liskovsoft.sharedutils'
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
     testOptions.unitTests.includeAndroidResources = true
 
     compileOptions {

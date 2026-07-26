@@ -25,27 +25,27 @@ project.ext {
     // - Backup/restore can access to the external directory
     // - Disabled auto start of the background service (e.g. remote control service)
     targetSdkVersion = 27 // 29 latest with lecacy storage access, 27 - latest with mouse dpad emulaton
-    compileSdkVersion = 34
-    buildToolsVersion = '30.0.3'
+    compileSdkVersion = 36
     //gradleVersion = '6.9.1' // https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
     //androidGradleVersion = '4.0.0+' // last version compatible with IntellJ 2020.3
     
     testSupportVersion = '0.5'
     testXSupportVersion = '1.1.0'
-    kotlinVersion = '1.8.10' // latest for android-gradle 4.0.0 https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7
-    kotlinxVersion = '1.7.3' // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-android
+    kotlinVersion = '2.0.21' // Compose compiler ships with Kotlin from 2.0 (compose-compiler-gradle-plugin)
+    kotlinxVersion = '1.8.1' // coroutines matching Kotlin 2.0
     // Compose for TV (smarttubetv module only)
-    composeCompilerVersion = '1.4.3' // matches kotlinVersion 1.8.10, see https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-    composeVersion = '1.4.3' // compose-ui/foundation/runtime, matches composeCompilerVersion
-    tvComposeVersion = '1.0.0-alpha06' // androidx.tv:tv-foundation / tv-material, last alpha built against compose 1.4.x
-    activityComposeVersion = '1.7.1'
+    composeVersion = '1.10.3' // matches what androidx.tv 1.0.0 depends on; compiler now comes from Kotlin
+    tvComposeVersion = '1.0.0' // stable; drops the TvLazy* fork (modern Compose handles TV focus natively)
+    activityComposeVersion = '1.9.3'
+    // material-icons-core/extended stopped tracking the Compose version (frozen at 1.7.x upstream)
+    composeMaterialIconsVersion = '1.7.8'
     // NOTE: Kotlin core 1.7.0 has 'resource android:attr/lStar not found' error (dialog black background bug)
-    kotlinCoreXVersion = '1.12.0' // latest for sdk 17. https://mvnrepository.com/artifact/androidx.core/core-ktx
-    coreXVersion = '1.12.0' // bumped for Compose for TV (1.9.0 is missing APIs androidx.compose.ui 1.4.3 calls, e.g. ViewCompat.setImportantForContentCapture)
+    kotlinCoreXVersion = '1.15.0' // core-ktx; needs to carry OnUserLeaveHintProvider for activity/fragment 1.9+
+    coreXVersion = '1.15.0'
     appCompatXVersion = '1.6.1' // 1.7.0+ is built with Kotlin 1.9 (metadata our 1.8.10 compiler rejects)
     leanbackXVersion = '1.0.0'
     viewpagerXVersion = '1.0.0'
-    activityXVersion = '1.0.0'
+    activityXVersion = '1.9.3'
     loaderXVersion = '1.0.0'
     interpolatorXVersion = '1.0.0'
     cardviewXVersion = '1.0.0'
