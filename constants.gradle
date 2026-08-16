@@ -101,8 +101,11 @@ project.ext {
     
     multiDexVersion = '2.0.1' // crashlytics fix on Android 4.4
     stethoVersion = '1.5.0' // Chrome Dev Tools
-    glideVersion = '4.11.0'
-    webpDecoderVersion = '2.0.' + glideVersion // should end with glide version
+    glideVersion = '4.16.0' // 4.14+ required by glide-compose
+    // NOTE: the webpdecoder prefix tracks Glide's major line (2.0.x for Glide 4.11, 2.6.x for 4.16),
+    // so this can't be derived from glideVersion the way it used to be.
+    webpDecoderVersion = '2.6.4.16.0'
+    glideComposeVersion = '1.0.0-beta01'
     rxAndroidVersion = '2.1.1'
     rxJavaVersion = '2.2.21'
     diskLruCacheVersion = '2.0.2'
