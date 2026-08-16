@@ -1,0 +1,71 @@
+name: Sync with upstream
+
+# Keeps this fork's master caught up with yuliskov/SharedModules automatically. Merges cleanly
+# when it can; aborts and fails loudly when it can't, rather than pushing anything half-merged.
+# AetherTube-dev's own sync workflow picks up whatever lands here on its next run.
+
+on:
+  schedule:
+    - cron: '5 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/yuliskov/SharedModules.git
+
+      - name: Fetch upstream
+        run: git fetch upstream
+
+      - name: Record pre-merge commit
+        id: before
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Attempt merge
+        id: merge
+        run: |
+          if git merge upstream/master --no-edit; then
+            exit 0
+          else
+            git merge --abort
+            echo "Merge conflict - aborted, nothing pushed."
+            exit 1
+          fi
+
+      - name: Push if there are new commits
+        if: success()
+        run: |
+          if [ "$(git rev-parse HEAD)" != "${{ steps.before.outputs.sha }}" ]; then
+            git push origin HEAD:master
+          else
+            echo "Already up to date with upstream."
+          fi
+
+      - name: File an issue on conflict
+        if: failure() && steps.merge.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(curl -s -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=sync-conflict" | grep -c '"number"')
+          if [ "$existing" -eq 0 ]; then
+            curl -s -X POST -H "Authorization: token $GH_TOKEN" \
+              -d '{"title":"Upstream sync conflict - manual merge needed","body":"The scheduled sync from yuliskov/SharedModules hit a merge conflict and was aborted automatically.\n\nResolve locally:\n\n```\ngit fetch upstream\ngit merge upstream/master\n# resolve conflicts\ngit push origin master\n```","labels":["sync-conflict"]}' \
+              "https://api.github.com/repos/${{ github.repository }}/issues"
+          fi
