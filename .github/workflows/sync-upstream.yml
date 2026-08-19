@@ -62,10 +62,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          existing=$(curl -s -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=sync-conflict" | grep -c '"number"')
+          set -x
+          resp=$(curl -sw "HTTPSTATUS:%{http_code}" -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=sync-conflict")
+          echo "RESP=$resp"
+          existing=$(echo "$resp" | sed 's/HTTPSTATUS.*//' | grep -c '"number"')
+          echo "EXISTING=[$existing]"
           if [ "$existing" -eq 0 ]; then
-            curl -s -X POST -H "Authorization: token $GH_TOKEN" \
-              -d '{"title":"Upstream sync conflict - manual merge needed","body":"The scheduled sync from yuliskov/SharedModules hit a merge conflict and was aborted automatically.\n\nResolve locally:\n\n```\ngit fetch upstream\ngit merge upstream/master\n# resolve conflicts\ngit push origin master\n```","labels":["sync-conflict"]}' \
+            curl -sw "\nHTTPSTATUS:%{http_code}\n" -X POST -H "Authorization: token $GH_TOKEN" \
+              -d '{"title":"debug-test-2","body":"debug"}' \
               "https://api.github.com/repos/${{ github.repository }}/issues"
           fi
