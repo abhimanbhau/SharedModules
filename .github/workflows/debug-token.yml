@@ -1,0 +1,20 @@
+name: Debug token
+on: workflow_dispatch
+permissions:
+  contents: write
+  issues: write
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test issue creation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Token permissions check:"
+          curl -sw "\nHTTP_STATUS:%{http_code}\n" -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}"  | tail -5
+          echo "---POST attempt---"
+          curl -sw "\nHTTP_STATUS:%{http_code}\n" -X POST -H "Authorization: token $GH_TOKEN" \
+            -d '{"title":"debug-test","body":"debug"}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues"
