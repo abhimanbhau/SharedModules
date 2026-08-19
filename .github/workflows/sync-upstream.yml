@@ -62,14 +62,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -x
-          resp=$(curl -sw "HTTPSTATUS:%{http_code}" -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=sync-conflict")
-          echo "RESP=$resp"
-          existing=$(echo "$resp" | sed 's/HTTPSTATUS.*//' | grep -c '"number"')
-          echo "EXISTING=[$existing]"
+          # jq 'length', not grep -c: grep exits 1 when it finds zero matches (the expected
+          # case here - the whole point is to file the *first* conflict issue), and these steps
+          # run under bash -e, so that exit code was killing the script before it ever reached the
+          # POST below. jq's length on an empty array is a clean "0", exit 0, no trap.
+          existing=$(curl -s -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=sync-conflict" | jq 'length')
           if [ "$existing" -eq 0 ]; then
-            curl -sw "\nHTTPSTATUS:%{http_code}\n" -X POST -H "Authorization: token $GH_TOKEN" \
-              -d '{"title":"debug-test-2","body":"debug"}' \
+            curl -s -X POST -H "Authorization: token $GH_TOKEN" \
+              -d '{"title":"Upstream sync conflict - manual merge needed","body":"The scheduled sync from yuliskov/SharedModules hit a merge conflict and was aborted automatically.\n\nResolve locally:\n\n```\ngit fetch upstream\ngit merge upstream/master\n# resolve conflicts\ngit push origin master\n```","labels":["sync-conflict"]}' \
               "https://api.github.com/repos/${{ github.repository }}/issues"
           fi
